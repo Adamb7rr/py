@@ -1,1 +1,0 @@
-get_valid_word(words)
