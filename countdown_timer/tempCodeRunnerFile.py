@@ -1,0 +1,1 @@
+input("Enter the time in seconds: ")
