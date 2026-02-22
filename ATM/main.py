@@ -52,7 +52,6 @@ class ATMController:
                 amount = self.get_number("Enter the amount to deposit: ")
                 self.atm.deposit(amount)
                 print(f"Success! deposited ${amount}")
-                
                 break
             except ValueError as e:
                 print(e)
