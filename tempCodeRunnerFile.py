@@ -1,0 +1,1 @@
+put_output(fun_output)  # <-- add placeholder to page
