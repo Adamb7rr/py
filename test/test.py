@@ -1,11 +1,10 @@
-def sign(x):
-    if x == 0:
-        return 0
-    elif x > 0:
-        return 1
-    else:
-        return -1
-        
-print(sign(0))
-print(sign(1))
-print(sign(-2))
+r = ['M', 'L']
+
+p1 = r[0]
+plast = r[-1]
+r.pop()
+print(r)
+r.append(p1)
+r[0] = plast
+print(r)
+
