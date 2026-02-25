@@ -1,1 +1,1 @@
-help(any)
+help(str)
