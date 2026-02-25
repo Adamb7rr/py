@@ -1,4 +1,11 @@
-flowers = "pink primrose,hard-leaved pocket orchid,canterbury bells,sweet pea,english marigold,tiger lily,moon orchid,bird of paradise,monkshood,globe thistle"
-
-print(type(flowers))
-print(flowers)
+def sign(x):
+    if x == 0:
+        return 0
+    elif x > 0:
+        return 1
+    else:
+        return -1
+        
+print(sign(0))
+print(sign(1))
+print(sign(-2))
