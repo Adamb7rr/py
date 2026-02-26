@@ -1,17 +1,11 @@
-import customtkinter as ctk
+import pandas as pd
 
-def button_callback():
-    print("Button clicked!")
-    label.configure(text="You clicked the button!")
+# data = {
+#     'Name': ['Adam', 'Youseef', 'Ziad', 'Sabah'],
+#     'Age': [23, 13, 20, 50],
+#     'Location': ['New York', 'Chicago', 'United State', 'Cairo']
+# }
 
-app = ctk.CTk()
-app.geometry("400x240")
-app.title("My Python App")
-
-label = ctk.CTkLabel(app, text="This is 100% Python", fg_color="transparent")
-label.pack(pady=20)
-
-button = ctk.CTkButton(app, text="Click Me", command=button_callback)
-button.pack(pady=20)
-
-app.mainloop()
+df = pd.read_csv('people-100.csv')
+# print(df.head())
+print(df[['First Name', 'Job Title']])

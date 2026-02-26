@@ -1,3 +1,2 @@
 .env
-test.py
-test
+test/test.py
