@@ -1,1 +1,1 @@
-data_train['Survived'].value_counts()
+, dtype='uint8'
