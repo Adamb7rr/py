@@ -1,75 +1,115 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 
-data_train = pd.read_csv(r'F:\py\Titanic\train.csv')
-data_test = pd.read_csv(r'F:\py\Titanic\test.csv')
+# =========================
+# 1️⃣ Load Data
+# =========================
+train = pd.read_csv(r"Titanic/train.csv")
+test = pd.read_csv(r"Titanic/test.csv")
 
-def clean(d):
-    d.drop(['Name', 'Cabin', 'Ticket', 'Fare', 'Embarked'], axis=1, inplace=True)
-    d['Age'] = d['Age'].fillna(d['Age'].median())
-    d.dropna(inplace=True)
-    return d
+# Save PassengerId for submission
+test_passenger_id = test["PassengerId"]
 
-clean(data_train)
-clean(data_test)
+# =========================
+# 2️⃣ Feature Engineering
+# =========================
 
-data_train.Sex=pd.get_dummies(data_train.Sex, drop_first=True, dtype='uint8')
-data_test.Sex=pd.get_dummies(data_test.Sex, drop_first=True, dtype='uint8')
+# ---- Extract Title from Name ----
+train["Title"] = train["Name"].str.extract(" ([A-Za-z]+)\.", expand=False)
+test["Title"] = test["Name"].str.extract(" ([A-Za-z]+)\.", expand=False)
 
-x = data_train.drop(['Survived'], axis=1)
+common_titles = ["Mr", "Miss", "Mrs", "Master"]
 
-y = data_train['Survived']
+train["Title"] = train["Title"].apply(lambda x: x if x in common_titles else "Other")
+test["Title"] = test["Title"].apply(lambda x: x if x in common_titles else "Other")
 
-x_data_train, x_data_test, y_data_train, y_data_test = train_test_split(x,y,train_size=.8, random_state=42)
+title_map = {"Mr":0, "Miss":1, "Mrs":2, "Master":3, "Other":4}
 
-accuracies = []
-def all(model):
-    model.fit(x_data_train, y_data_train)
-    pre = model.predict(x_data_test)
-    score = accuracy_score(pre,y_data_test)
-    accuracies.append(score)
-    print(f'Accuracy: {score}')
+train["Title"] = train["Title"].map(title_map)
+test["Title"] = test["Title"].map(title_map)
 
-model1 = LogisticRegression()
-all(model1)
-model2 = RandomForestClassifier()
-all(model2)
-model3 = GradientBoostingClassifier()
-all(model3)
-model4 = DecisionTreeClassifier()
-all(model4)
-model5 = KNeighborsClassifier()
-all(model5)
-model6 = GaussianNB()
-all(model6)
-model7 = SVC()
-all(model7)
+# ---- Family Features ----
+train["FamilySize"] = train["SibSp"] + train["Parch"] + 1
+test["FamilySize"] = test["SibSp"] + test["Parch"] + 1
 
-Algorithms = ['LogisticRegression', 'RandomForestClassifier', 'GradientBoostingClassifier',
-            'DecisionTreeClassifier', 'KNeighborsClassifier', 'GaussianNB', 'SVC']
+train["IsAlone"] = (train["FamilySize"] == 1).astype(int)
+test["IsAlone"] = (test["FamilySize"] == 1).astype(int)
 
-new = pd.DataFrame({'Algorithms': Algorithms, 'accuracies': accuracies})
+# =========================
+# 3️⃣ Cleaning
+# =========================
 
-modelx = RandomForestClassifier()
-modelx.fit(x_data_train, y_data_train)
+# Drop unnecessary columns
+drop_cols = ["Name", "Ticket", "Cabin"]
+train.drop(drop_cols, axis=1, inplace=True)
+test.drop(drop_cols, axis=1, inplace=True)
 
-lpre = modelx.predict(data_test)
-final = data_test['PassengerId']
+# Fill missing values
+train["Age"].fillna(train["Age"].median(), inplace=True)
+test["Age"].fillna(test["Age"].median(), inplace=True)
 
-new_dataframe = pd.DataFrame({
-                            'PassengerId': final,
-                            'Survived': lpre
-                        })
-new_dataframe.to_csv("submission.csv", index=False)
+train["Embarked"].fillna(train["Embarked"].mode()[0], inplace=True)
+test["Embarked"].fillna(test["Embarked"].mode()[0], inplace=True)
+
+test["Fare"].fillna(test["Fare"].median(), inplace=True)
+
+# Convert categorical to numeric
+train["Sex"] = train["Sex"].map({"male":1, "female":0})
+test["Sex"] = test["Sex"].map({"male":1, "female":0})
+
+train["Embarked"] = train["Embarked"].map({"S":0, "C":1, "Q":2})
+test["Embarked"] = test["Embarked"].map({"S":0, "C":1, "Q":2})
+
+# =========================
+# 4️⃣ Prepare Data
+# =========================
+
+X = train.drop("Survived", axis=1)
+y = train["Survived"]
+
+X_train, X_valid, y_train, y_valid = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# =========================
+# 5️⃣ Train Tuned Model
+# =========================
+
+model = RandomForestClassifier(
+    n_estimators=300,
+    max_depth=7,
+    min_samples_split=4,
+    random_state=42
+)
+
+model.fit(X_train, y_train)
+
+predictions = model.predict(X_valid)
+
+accuracy = accuracy_score(y_valid, predictions)
+print("Validation Accuracy:", accuracy)
+
+# =========================
+# 6️⃣ Train on Full Data
+# =========================
+
+model.fit(X, y)
+
+test_predictions = model.predict(test)
+
+# =========================
+# 7️⃣ Create Submission
+# =========================
+
+submission = pd.DataFrame({
+    "PassengerId": test_passenger_id,
+    "Survived": test_predictions
+})
+
+submission.to_csv("submission.csv", index=False)
+
+print("Submission file created successfully!")

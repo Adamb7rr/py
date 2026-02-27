@@ -1,1 +1,2 @@
-, dtype='uint8'
+
+# print(train.info())
