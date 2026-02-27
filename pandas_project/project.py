@@ -4,4 +4,6 @@ import numpy as np
 
 data = pd.read_excel("pandas_project/files/ecommerce_orders.xlsx")
 
-print(data.info())
+# res = data['Product']
+data.columns = data.columns.str.strip()
+print(data['Product'])
