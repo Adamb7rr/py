@@ -1,1 +1,2 @@
-, ascending=False
+
+# plt.ylabel("total revenue")
