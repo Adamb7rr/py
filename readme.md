@@ -1,1 +1,1 @@
-Some projects with python
+projects with python
