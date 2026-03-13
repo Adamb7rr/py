@@ -14,10 +14,6 @@ test = pd.read_csv(r"Titanic/test.csv")
 # Save PassengerId for submission
 test_passenger_id = test["PassengerId"]
 
-# =========================
-# 2️⃣ Feature Engineering
-# =========================
-
 # ---- Extract Title from Name ----
 train["Title"] = train["Name"].str.extract(" ([A-Za-z]+)\.", expand=False)
 test["Title"] = test["Name"].str.extract(" ([A-Za-z]+)\.", expand=False)
