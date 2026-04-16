@@ -5,13 +5,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 
-# =========================
-# 1️⃣ Load Data
-# =========================
+
 train = pd.read_csv(r"Titanic/train.csv")
 test = pd.read_csv(r"Titanic/test.csv")
 
-# Save PassengerId for submission
+
 test_passenger_id = test["PassengerId"]
 
 # ---- Extract Title from Name ----
@@ -35,10 +33,6 @@ test["FamilySize"] = test["SibSp"] + test["Parch"] + 1
 train["IsAlone"] = (train["FamilySize"] == 1).astype(int)
 test["IsAlone"] = (test["FamilySize"] == 1).astype(int)
 
-# =========================
-# 3️⃣ Cleaning
-# =========================
-
 # Drop unnecessary columns
 drop_cols = ["Name", "Ticket", "Cabin"]
 train.drop(drop_cols, axis=1, inplace=True)
@@ -60,10 +54,6 @@ test["Sex"] = test["Sex"].map({"male":1, "female":0})
 train["Embarked"] = train["Embarked"].map({"S":0, "C":1, "Q":2})
 test["Embarked"] = test["Embarked"].map({"S":0, "C":1, "Q":2})
 
-# =========================
-# 4️⃣ Prepare Data
-# =========================
-
 X = train.drop("Survived", axis=1)
 y = train["Survived"]
 
@@ -71,9 +61,6 @@ X_train, X_valid, y_train, y_valid = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# =========================
-# 5️⃣ Train Tuned Model
-# =========================
 
 model = RandomForestClassifier(
     n_estimators=300,
@@ -89,9 +76,6 @@ predictions = model.predict(X_valid)
 accuracy = accuracy_score(y_valid, predictions)
 print("Validation Accuracy:", accuracy)
 
-# =========================
-# 6️⃣ Train on Full Data
-# =========================
 
 model.fit(X, y)
 
