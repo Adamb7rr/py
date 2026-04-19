@@ -1,2 +1,1 @@
-
-# print(train.info())
+print(train.info())
