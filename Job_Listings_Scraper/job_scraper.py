@@ -30,5 +30,3 @@ with open("jobs.csv", 'w', newline='', encoding='utf-8') as file:
     writer.writerow([title, company, location, time, link])
     writer.writerows(job_list)
 print("Jobs saved to jobs.csv")
-
-# print(job_list[2])
